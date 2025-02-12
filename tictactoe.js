@@ -5,9 +5,10 @@ const tictactoe = (() => {
     })();
 
     const gameState = {
-        turn: "",
+        currentPlayer: {},
         round: 0,
         winner: "",
+        message: "",
     };
 
     const updateGameState = (marker) => {
@@ -16,9 +17,9 @@ const tictactoe = (() => {
             changeTurn();
             render();
         } else {
+            gameState.currentPlayer = {};
+            gameState.message = gameState.winner === "tie" ? "It's a tie." : `${gameState.winner} wins!`;
             render();
-            const message = gameState.winner === "tie" ? "It's a tie." : `Congrats ${gameState.winner}`;
-            console.log(message);
         }
     };
 
@@ -61,8 +62,8 @@ const tictactoe = (() => {
 
     const PlayerFactory = (name, marker) => {
         const playPiece = (spot) => {
-            if (gameState.turn === name) {
-                if (gameboard.board[spot] === "-") {
+            if (gameState.currentPlayer.name === name) {
+                if (gameboard.board[spot] === "") {
                     gameboard.board[spot] = marker;
                     updateGameState(marker);
                 } else {
@@ -82,28 +83,54 @@ const tictactoe = (() => {
     };
 
     const startGame = () => {
-        gameboard.board = ["-","-","-","-","-","-","-","-","-"];
+        cacheDom.board.classList.remove("hide");
+        cacheDom.startBtn.classList.toggle("hide");
+        gameboard.board = ["","","","","","","","",""];
         gameState.round = 1;
-        gameState.turn = players.player1.name;
+        gameState.currentPlayer = players.player1;
         gameState.winner = "";
+        gameState.message = "";
         render();
     };
 
     const changeTurn = () => {
-        gameState.turn = gameState.turn === players.player1.name
-            ? players.player2.name
-            : players.player1.name;
+        gameState.currentPlayer = gameState.currentPlayer === players.player1
+            ? players.player2
+            : players.player1;
     };
 
     const render = () => {
-        console.log(`Round ${gameState.round}`);
-        console.log(gameboard.board[0],gameboard.board[1],gameboard.board[2]);
-        console.log(gameboard.board[3],gameboard.board[4],gameboard.board[5]);
-        console.log(gameboard.board[6],gameboard.board[7],gameboard.board[8]);
+        cacheDom.boxes.forEach((value, index) => {
+            value.textContent = gameboard.board[index];
+        });
+        cacheDom.round.textContent = `Round ${gameState.round}`;
+        cacheDom.message.textContent = gameState.message;
         if (!gameState.winner) {
-            console.log(`It is now ${gameState.turn}'s turn.`);
+            cacheDom.turn.textContent = `It is now ${gameState.currentPlayer.name}'s turn.`;
+        } else {
+            cacheDom.startBtn.classList.toggle("hide");
+            cacheDom.turn.textContent = "";
         }
     };
 
-    return { startGame, player1Move: players.player1.playPiece, player2Move: players.player2.playPiece };
+    const cacheDom = {
+        board: document.querySelector(".tictactoe"),
+        boxes: document.querySelectorAll(".box"),
+        startBtn: document.querySelector(".start-game"),
+        turn: document.querySelector(".turn"),
+        round: document.querySelector(".round"),
+        message: document.querySelector(".message")
+    }
+
+    cacheDom.boxes.forEach((value, index) => {
+        value.addEventListener("click", () => {
+            if (gameState.currentPlayer.playPiece) {
+                gameState.currentPlayer.playPiece(index);
+            }
+        });
+    });
+
+    cacheDom.startBtn.addEventListener("click", startGame);
+
+    return { };
 })();

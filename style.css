@@ -1,0 +1,48 @@
+body {
+    padding: 8%;
+}
+
+h1 {
+    text-align: center;
+}
+
+.tictactoe {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+}
+
+.row {
+    border-bottom: 2px solid #000000;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.row:last-of-type {
+    border: none;
+}
+
+.box {
+    height: 100px;
+    border-right: 2px solid #000000;
+    font-size: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.box:last-of-type {
+    border-right: none;
+}
+
+.box:hover {
+    background-color: #dddddd;
+}
+
+.dashboard {
+    text-align: center;
+}
+
+.hide {
+    display: none;
+}
