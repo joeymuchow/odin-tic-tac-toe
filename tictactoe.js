@@ -6,20 +6,23 @@ const tictactoe = (() => {
 
     const gameState = {
         currentPlayer: {},
+        players: {
+            player1: {},
+            player2: {},
+        },
         round: 0,
         winner: "",
         message: "",
+        error: "",
     };
 
     const updateGameState = (marker) => {
         if (!checkForGameOver(marker)) {
             gameState.round += 1;
             changeTurn();
-            render();
         } else {
             gameState.currentPlayer = {};
             gameState.message = gameState.winner === "tie" ? "It's a tie." : `${gameState.winner} wins!`;
-            render();
         }
     };
 
@@ -38,7 +41,7 @@ const tictactoe = (() => {
             const isWinner = checkForCombo(combo, playerMoves);
             if (isWinner) {
                 gameOver = true;
-                gameState.winner = marker === players.player1.marker ? players.player1.name : players.player2.name;
+                gameState.winner = marker === gameState.players.player1.marker ? gameState.players.player1.name : gameState.players.player2.name;
                 break;
             }
         }
@@ -62,41 +65,38 @@ const tictactoe = (() => {
 
     const PlayerFactory = (name, marker) => {
         const playPiece = (spot) => {
-            if (gameState.currentPlayer.name === name) {
-                if (gameboard.board[spot] === "") {
-                    gameboard.board[spot] = marker;
-                    updateGameState(marker);
-                } else {
-                    console.log("That space is already taken. Try again.");
-                }
+            gameState.error = "";
+            if (gameboard.board[spot] === "") {
+                gameboard.board[spot] = marker;
+                updateGameState(marker);
+                render();
             } else {
-                console.log(`It is not your turn ${name}!`);
+                gameState.error = "That space is already taken. Try again.";
+                render();
             }
-            
         }
         return { name, marker, playPiece };
     };
 
-    const players = {
-        player1: PlayerFactory("player1", "x"),
-        player2: PlayerFactory("player2", "o")
-    };
-
     const startGame = () => {
+        const player1Name = prompt("First player, what is your name?") || "player1";
+        const player2Name = prompt("Second player, what is your name?") || "player2";
+        gameState.players.player1 = PlayerFactory(player1Name, "X");
+        gameState.players.player2 = PlayerFactory(player2Name, "O");
         cacheDom.board.classList.remove("hide");
         cacheDom.startBtn.classList.toggle("hide");
         gameboard.board = ["","","","","","","","",""];
         gameState.round = 1;
-        gameState.currentPlayer = players.player1;
+        gameState.currentPlayer = gameState.players.player1;
         gameState.winner = "";
         gameState.message = "";
         render();
     };
 
     const changeTurn = () => {
-        gameState.currentPlayer = gameState.currentPlayer === players.player1
-            ? players.player2
-            : players.player1;
+        gameState.currentPlayer = gameState.currentPlayer === gameState.players.player1
+            ? gameState.players.player2
+            : gameState.players.player1;
     };
 
     const render = () => {
@@ -105,6 +105,7 @@ const tictactoe = (() => {
         });
         cacheDom.round.textContent = `Round ${gameState.round}`;
         cacheDom.message.textContent = gameState.message;
+        cacheDom.error.textContent = gameState.error;
         if (!gameState.winner) {
             cacheDom.turn.textContent = `It is now ${gameState.currentPlayer.name}'s turn.`;
         } else {
@@ -119,7 +120,8 @@ const tictactoe = (() => {
         startBtn: document.querySelector(".start-game"),
         turn: document.querySelector(".turn"),
         round: document.querySelector(".round"),
-        message: document.querySelector(".message")
+        message: document.querySelector(".message"),
+        error: document.querySelector(".error")
     }
 
     cacheDom.boxes.forEach((value, index) => {

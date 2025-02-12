@@ -46,3 +46,7 @@ h1 {
 .hide {
     display: none;
 }
+
+.error {
+    color: #ff0000;
+}
